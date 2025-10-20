@@ -8,14 +8,13 @@ import (
 )
 
 type Server struct {
-	ID       int     `json:"id"`
-	Name     string  `json:"name"`
-	Sponsor  string  `json:"sponsor"`
-	URL      string  `json:"url"`
-	Lat      float64 `json:"lat"`
-	Lon      float64 `json:"lon"`
-	Distance float64 `json:"distance"`
-	Ping     float64 `json:"ping"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Server   string `json:"server"`
+	dlURL    string `json:"dlURL"`
+	getIpURL string `json:"getIpURL"`
+	PingURL  string `json:"pingURL"`
+	ulURL    string `json:"ulURL"`
 }
 
 func FetchServerList() ([]Server, error) {
