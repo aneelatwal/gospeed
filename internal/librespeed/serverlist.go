@@ -11,10 +11,10 @@ type Server struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Server   string `json:"server"`
-	dlURL    string `json:"dlURL"`
-	getIpURL string `json:"getIpURL"`
+	DlURL    string `json:"dlURL"`
+	GetIpURL string `json:"getIpURL"`
 	PingURL  string `json:"pingURL"`
-	ulURL    string `json:"ulURL"`
+	UlURL    string `json:"ulURL"`
 }
 
 func FetchServerList() ([]Server, error) {
