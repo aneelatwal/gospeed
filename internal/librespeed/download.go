@@ -2,7 +2,6 @@ package librespeed
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -19,83 +18,37 @@ func BuildDownloadURL(server Server) string {
 func RunDownloadTest(server ServerResult) (float64, []byte, error) {
 	fullURL := BuildDownloadURL(server.Server)
 
-	const numStreams = 8
-	const testDuration = 15 * time.Second
-	const maxBufferSize = 5 * 1024 * 1024 // 5 MB
-
-	var totalBytes int64
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	errChan := make(chan error, numStreams)
-
-	client := &http.Client{
-		Timeout: 20 * time.Second,
-	}
-
+	const maxBufferBytes = 5 * 1024 * 1024
 	var downloadedData bytes.Buffer
+	var mu sync.Mutex
 
-	startTime := time.Now()
-
-	wg.Add(numStreams)
-	for i := 0; i < numStreams; i++ {
-		go func(streamID int) {
-			defer wg.Done()
-			for {
-				elapsed := time.Since(startTime)
-				if elapsed >= testDuration {
-					return
-				}
-				// Append unique cache buster query param
-				urlWithParam := fmt.Sprintf("%s?ck=%d", fullURL, time.Now().UnixNano())
-
-				resp, err := client.Get(urlWithParam)
-				if err != nil {
-					errChan <- err
-					return
-				}
-
-				limitedReader := io.LimitReader(resp.Body, maxBufferSize)
-				buf := make([]byte, 32*1024)
-				for {
-					n, err := limitedReader.Read(buf)
-					if n > 0 {
-						mu.Lock()
-						totalBytes += int64(n)
-						if downloadedData.Len() < maxBufferSize {
-							remaining := maxBufferSize - downloadedData.Len()
-							if n > remaining {
-								downloadedData.Write(buf[:remaining])
-							} else {
-								downloadedData.Write(buf[:n])
-							}
-						}
-						mu.Unlock()
-					}
-					if err != nil {
-						if err == io.EOF {
-							break
-						}
-						resp.Body.Close()
-						errChan <- err
-						return
-					}
-				}
-				resp.Body.Close()
+	tester := SpeedTester{
+		Client:     &http.Client{Timeout: 20 * time.Second},
+		NumStreams: 8,
+		Duration:   15 * time.Second,
+		TransferFunc: func(client *http.Client, url string) (int64, []byte, error) {
+			resp, err := client.Get(url)
+			if err != nil {
+				return 0, nil, err
 			}
-		}(i)
+			defer resp.Body.Close()
+			data, err := io.ReadAll(io.LimitReader(resp.Body, int64(maxBufferBytes)))
+			return int64(len(data)), data, err
+		},
+		DataCaptureFunc: func(data []byte) {
+			mu.Lock()
+			defer mu.Unlock()
+			if downloadedData.Len() < maxBufferBytes {
+				remaining := maxBufferBytes - downloadedData.Len()
+				if len(data) > remaining {
+					downloadedData.Write(data[:remaining])
+				} else {
+					downloadedData.Write(data)
+				}
+			}
+		},
 	}
 
-	wg.Wait()
-	close(errChan)
-
-	if err, ok := <-errChan; ok {
-		return 0, nil, err
-	}
-
-	duration := time.Since(startTime)
-	speedMbps := float64(totalBytes*8) / (duration.Seconds() * 1_000_000)
-
-	fmt.Printf("Downloaded %d bytes in %v, speed: %.2f Mbps\n", totalBytes, duration, speedMbps)
-
-	return speedMbps, downloadedData.Bytes(), nil
+	speed, _, err := tester.Run(fullURL)
+	return speed, downloadedData.Bytes(), err
 }
