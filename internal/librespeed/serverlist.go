@@ -8,13 +8,13 @@ import (
 )
 
 type Server struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Server   string `json:"server"`
-	DlURL    string `json:"dlURL"`
-	GetIpURL string `json:"getIpURL"`
-	PingURL  string `json:"pingURL"`
-	UlURL    string `json:"ulURL"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	ServerURL string `json:"server"`
+	DlURL     string `json:"dlURL"`
+	GetIpURL  string `json:"getIpURL"`
+	PingURL   string `json:"pingURL"`
+	UlURL     string `json:"ulURL"`
 }
 
 func FetchServerList() ([]Server, error) {

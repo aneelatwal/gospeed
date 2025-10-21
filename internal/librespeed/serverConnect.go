@@ -1,16 +1,25 @@
 package librespeed
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func PingServers(servers []Server) Server {
+func BuildPingURL(server Server) string {
+	baseURL := strings.TrimRight(server.ServerURL, "/")
+	pingPath := "/backend/empty.php"
+	if server.PingURL != "" {
+		pingPath = server.PingURL
+	}
+	path := strings.TrimLeft(pingPath, "/")
+	return baseURL + "/" + path
+}
+
+func PingServers(servers []Server) ServerResult {
 	const attempts = 3
 	const timeout = 3 * time.Second
-	const workerCount = 5
+	const workerCount = 10
 
 	type result struct {
 		server     Server
@@ -28,13 +37,7 @@ func PingServers(servers []Server) Server {
 				Timeout: timeout,
 			}
 			for server := range serverCh {
-				pingPath := "/backend/empty.php"
-				if server.PingURL != "" {
-					pingPath = server.PingURL
-				}
-				baseURL := strings.TrimRight(server.Server, "/")
-				path := strings.TrimLeft(pingPath, "/")
-				url := baseURL + "/" + path
+				url := BuildPingURL(server)
 
 				var totalDuration time.Duration
 				var successCount int
@@ -69,20 +72,23 @@ func PingServers(servers []Server) Server {
 	}()
 
 	lowestAvg := time.Duration(1<<63 - 1) // max duration
-	var fastestServer Server
+	var fastestServerResult ServerResult
 
 	for i := 0; i < len(servers); i++ {
 		res := <-resultCh
 		if !res.ok {
-			fmt.Printf("Server %s: all ping attempts failed or timed out\n", res.server.Server)
+			// fmt.Printf("Server %s: all ping attempts failed or timed out\n", res.server.ServerURL)
 			continue
 		}
-		fmt.Printf("Server %s average latency: %v\n", res.server.Server, res.avgLatency)
+		// fmt.Printf("Server %s average latency: %v\n", res.server.ServerURL, res.avgLatency)
 		if res.avgLatency < lowestAvg {
 			lowestAvg = res.avgLatency
-			fastestServer = res.server
+			fastestServerResult = ServerResult{
+				Server:  res.server,
+				Latency: res.avgLatency,
+			}
 		}
 	}
 
-	return fastestServer
+	return fastestServerResult
 }
