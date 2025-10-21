@@ -1,6 +1,7 @@
 package librespeed
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,11 +16,12 @@ func BuildDownloadURL(server Server) string {
 	return baseURL + "/" + downloadPath
 }
 
-func RunDownloadTest(server ServerResult) (float64, error) {
+func RunDownloadTest(server ServerResult) (float64, []byte, error) {
 	fullURL := BuildDownloadURL(server.Server)
 
 	const numStreams = 8
 	const testDuration = 15 * time.Second
+	const maxBufferSize = 5 * 1024 * 1024 // 5 MB
 
 	var totalBytes int64
 	var wg sync.WaitGroup
@@ -29,6 +31,8 @@ func RunDownloadTest(server ServerResult) (float64, error) {
 	client := &http.Client{
 		Timeout: 20 * time.Second,
 	}
+
+	var downloadedData bytes.Buffer
 
 	startTime := time.Now()
 
@@ -50,16 +54,33 @@ func RunDownloadTest(server ServerResult) (float64, error) {
 					return
 				}
 
-				n, err := io.Copy(io.Discard, resp.Body)
-				resp.Body.Close()
-				if err != nil {
-					errChan <- err
-					return
+				limitedReader := io.LimitReader(resp.Body, maxBufferSize)
+				buf := make([]byte, 32*1024)
+				for {
+					n, err := limitedReader.Read(buf)
+					if n > 0 {
+						mu.Lock()
+						totalBytes += int64(n)
+						if downloadedData.Len() < maxBufferSize {
+							remaining := maxBufferSize - downloadedData.Len()
+							if n > remaining {
+								downloadedData.Write(buf[:remaining])
+							} else {
+								downloadedData.Write(buf[:n])
+							}
+						}
+						mu.Unlock()
+					}
+					if err != nil {
+						if err == io.EOF {
+							break
+						}
+						resp.Body.Close()
+						errChan <- err
+						return
+					}
 				}
-
-				mu.Lock()
-				totalBytes += n
-				mu.Unlock()
+				resp.Body.Close()
 			}
 		}(i)
 	}
@@ -68,7 +89,7 @@ func RunDownloadTest(server ServerResult) (float64, error) {
 	close(errChan)
 
 	if err, ok := <-errChan; ok {
-		return 0, err
+		return 0, nil, err
 	}
 
 	duration := time.Since(startTime)
@@ -76,5 +97,5 @@ func RunDownloadTest(server ServerResult) (float64, error) {
 
 	fmt.Printf("Downloaded %d bytes in %v, speed: %.2f Mbps\n", totalBytes, duration, speedMbps)
 
-	return speedMbps, nil
+	return speedMbps, downloadedData.Bytes(), nil
 }

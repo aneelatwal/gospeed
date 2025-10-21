@@ -20,10 +20,15 @@ func main() {
 	fastestServer := librespeed.PingServers(servers)
 	fmt.Printf("Fastest server is %s with average latency %v\n", fastestServer.Server.Name, fastestServer.Latency)
 
-	downloadSpeed, err := librespeed.RunDownloadTest(fastestServer)
+	downloadSpeed, data, err := librespeed.RunDownloadTest(fastestServer)
 	if err != nil {
 		log.Fatalf("Error during download test: %v", err)
 	}
-
 	fmt.Printf("Download speed: %.2f Mbps\n", downloadSpeed)
+
+	uploadSpeed, err := librespeed.RunUploadTest(fastestServer, data)
+	if err != nil {
+		log.Fatalf("Error during upload test: %v", err)
+	}
+	fmt.Printf("Upload speed: %.2f Mbps\n", uploadSpeed)
 }
