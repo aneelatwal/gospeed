@@ -18,35 +18,50 @@ func BuildDownloadURL(server Server) string {
 func RunDownloadTest(server ServerResult) (float64, error) {
 	fullURL := BuildDownloadURL(server.Server)
 
-	const numGoroutines = 4
+	const numStreams = 8
+	const testDuration = 15 * time.Second
+
 	var totalBytes int64
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	errChan := make(chan error, numGoroutines)
+	errChan := make(chan error, numStreams)
+
+	client := &http.Client{
+		Timeout: 20 * time.Second,
+	}
 
 	startTime := time.Now()
 
-	wg.Add(numGoroutines)
-	for i := 0; i < numGoroutines; i++ {
-		go func() {
+	wg.Add(numStreams)
+	for i := 0; i < numStreams; i++ {
+		go func(streamID int) {
 			defer wg.Done()
-			resp, err := http.Get(fullURL)
-			if err != nil {
-				errChan <- err
-				return
-			}
-			defer resp.Body.Close()
+			for {
+				elapsed := time.Since(startTime)
+				if elapsed >= testDuration {
+					return
+				}
+				// Append unique cache buster query param
+				urlWithParam := fmt.Sprintf("%s?ck=%d", fullURL, time.Now().UnixNano())
 
-			n, err := io.Copy(io.Discard, resp.Body)
-			if err != nil {
-				errChan <- err
-				return
-			}
+				resp, err := client.Get(urlWithParam)
+				if err != nil {
+					errChan <- err
+					return
+				}
 
-			mu.Lock()
-			totalBytes += n
-			mu.Unlock()
-		}()
+				n, err := io.Copy(io.Discard, resp.Body)
+				resp.Body.Close()
+				if err != nil {
+					errChan <- err
+					return
+				}
+
+				mu.Lock()
+				totalBytes += n
+				mu.Unlock()
+			}
+		}(i)
 	}
 
 	wg.Wait()
