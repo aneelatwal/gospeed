@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aneelatwal/gospeed/internal/librespeed"
+	"github.com/aneelatwal/gospeed/internal/web"
 )
 
 type SpeedResult struct {
@@ -17,7 +18,7 @@ type SpeedResult struct {
 }
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("internal/web")))
+	http.Handle("/", http.FileServer(http.FS(web.Files)))
 
 	http.HandleFunc("/api/speedtest", func(w http.ResponseWriter, r *http.Request) {
 		// Select the best server
