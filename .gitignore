@@ -1,0 +1,3 @@
+# Ignore built gospeed binary
+/gospeed
+gospeed.exe
