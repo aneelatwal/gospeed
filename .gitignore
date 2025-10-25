@@ -1,3 +1,5 @@
 # Ignore built gospeed binary
 /gospeed
 gospeed.exe
+/node_modules
+.DS_Store
