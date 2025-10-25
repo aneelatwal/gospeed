@@ -7,12 +7,43 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="p-6 bg-gray-100 text-center">
-  <h2 class="text-2xl font-semibold text-gray-800">GoSpeed Network Test</h2>
-  <button id="startBtn" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-    Start Test
+<body class="bg-[#0f1117] text-gray-200 min-h-screen flex flex-col items-center justify-center p-6">
+  <h2 class="text-3xl font-semibold text-gray-100 mb-10 tracking-wide">
+    GoSpeed Network Test
+  </h2>
+
+  <!-- GO Button -->
+  <button id="startBtn"
+    class="w-32 h-32 flex items-center justify-center rounded-full border-2 border-cyan-400 text-xl font-semibold text-white hover:scale-105 transition-transform duration-200 shadow-[0_0_10px_rgba(0,255,255,0.3)]">
+    GO
   </button>
-  <div id="output" class="mt-6 text-lg text-gray-700"></div>
+
+  <!-- Results Card -->
+  <div id="output"
+    class="mt-10 hidden border border-green-500 rounded-xl p-6 flex flex-col md:flex-row justify-between items-center w-full max-w-2xl bg-[#131722]">
+    <div class="flex flex-col items-center m-4">
+      <span class="text-green-400 text-sm uppercase tracking-wider">Ping</span>
+      <span class="text-3xl font-bold text-gray-100" id="pingVal">0</span>
+      <span class="text-xs text-gray-400">ms</span>
+    </div>
+
+    <div class="flex flex-col items-center m-4">
+      <span class="text-green-400 text-sm uppercase tracking-wider">Download</span>
+      <span class="text-3xl font-bold text-gray-100" id="downVal">0</span>
+      <span class="text-xs text-gray-400">Mbps</span>
+    </div>
+
+    <div class="flex flex-col items-center m-4">
+      <span class="text-green-400 text-sm uppercase tracking-wider">Upload</span>
+      <span class="text-3xl font-bold text-gray-100" id="upVal">0</span>
+      <span class="text-xs text-gray-400">Mbps</span>
+    </div>
+
+    <div class="flex flex-col items-center m-4">
+      <span class="text-blue-400 text-sm uppercase tracking-wider">Test Time</span>
+      <span class="text-xl font-bold text-gray-100" id="timestamp">--</span>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

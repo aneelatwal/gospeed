@@ -1,18 +1,30 @@
-document.getElementById("startBtn").addEventListener("click", async () => {
-  const output = document.getElementById("output");
-  output.innerHTML = "Running test... please wait.";
+const startBtn = document.getElementById("startBtn");
+const output = document.getElementById("output");
+
+startBtn.addEventListener("click", async () => {
+  // Add pulsing animation
+  startBtn.classList.add("animate-pulse", "opacity-80");
+  output.classList.remove("hidden");
+
+  document.getElementById("pingVal").textContent = "--";
+  document.getElementById("downVal").textContent = "--";
+  document.getElementById("upVal").textContent = "--";
+  document.getElementById("timestamp").textContent = "Running...";
 
   try {
     const res = await fetch("/api/speedtest");
     const data = await res.json();
-    output.innerHTML = `
-      <h4>Results</h4>
-      <p><strong>Server:</strong> ${data.server}</p>
-      <p><strong>Download:</strong> ${data.download_mbps.toFixed(2)} Mbps</p>
-      <p><strong>Upload:</strong> ${data.upload_mbps.toFixed(2)} Mbps</p>
-      <p><small>Timestamp: ${data.timestamp}</small></p>
-    `;
+
+    document.getElementById("pingVal").textContent = data.ping_ms.toFixed(0);
+    document.getElementById("downVal").textContent = data.download_mbps.toFixed(2);
+    document.getElementById("upVal").textContent = data.upload_mbps.toFixed(2);
+    document.getElementById("timestamp").textContent = new Date(data.timestamp)
+      .toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+
   } catch (err) {
-    output.innerHTML = "Error running test: " + err.message;
+    document.getElementById("timestamp").textContent = "Error: " + err.message;
+  } finally {
+    // Stop pulsing
+    startBtn.classList.remove("animate-pulse", "opacity-80");
   }
 });

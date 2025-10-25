@@ -12,6 +12,7 @@ import (
 
 type SpeedResult struct {
 	Server       string  `json:"server"`
+	PingMs       int64   `json:"ping_ms"`
 	DownloadMbps float64 `json:"download_mbps"`
 	UploadMbps   float64 `json:"upload_mbps"`
 	Timestamp    string  `json:"timestamp"`
@@ -43,6 +44,7 @@ func main() {
 
 		result := SpeedResult{
 			Server:       best.Server.ServerURL,
+			PingMs:       best.Latency.Milliseconds(),
 			DownloadMbps: downloadMbps,
 			UploadMbps:   uploadMbps,
 			Timestamp:    time.Now().Format(time.RFC3339),
