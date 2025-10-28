@@ -1,9 +1,11 @@
 const startBtn = document.getElementById("startBtn");
 const output = document.getElementById("output");
+const spinner = document.getElementById("spinner");
 
 startBtn.addEventListener("click", async () => {
-  // Add pulsing animation
+  // Add pulsing animation and show spinner
   startBtn.classList.add("animate-pulse", "opacity-80");
+  spinner.classList.remove("hidden");
   output.classList.remove("hidden");
 
   document.getElementById("pingVal").textContent = "--";
@@ -24,7 +26,8 @@ startBtn.addEventListener("click", async () => {
   } catch (err) {
     document.getElementById("timestamp").textContent = "Error: " + err.message;
   } finally {
-    // Stop pulsing
+    // Stop pulsing and hide spinner
     startBtn.classList.remove("animate-pulse", "opacity-80");
+    spinner.classList.add("hidden");
   }
 });
