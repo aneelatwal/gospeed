@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aneelatwal/gospeed/internal/librespeed"
+	"github.com/aneelatwal/gospeed/internal/storage"
 	"github.com/aneelatwal/gospeed/internal/web"
 )
 
@@ -50,8 +51,30 @@ func main() {
 			Timestamp:    time.Now().Format(time.RFC3339),
 		}
 
+		// Save to history CSV
+		err = storage.SaveResult(storage.Result{
+			Timestamp:    time.Now(),
+			PingMs:       float64(result.PingMs),
+			DownloadMbps: result.DownloadMbps,
+			UploadMbps:   result.UploadMbps,
+		})
+		if err != nil {
+			// Log error, but don't fail API
+			fmt.Printf("Failed to save result: %v\n", err)
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(result)
+	})
+
+	http.HandleFunc("/api/history", func(w http.ResponseWriter, r *http.Request) {
+		results, err := storage.LoadLastResults(5)
+		if err != nil {
+			http.Error(w, "Failed to load history", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(results)
 	})
 
 	fmt.Println("Server running on http://0.0.0.0:9090")
