@@ -44,7 +44,7 @@ startBtn.addEventListener("click", async () => {
   // Add pulsing animation and show spinner
   startBtn.classList.add("animate-pulse", "opacity-80");
   spinner.classList.remove("hidden");
-  output.classList.remove("hidden");
+  output.classList.add("hidden");
 
   document.getElementById("pingVal").textContent = "--";
   document.getElementById("downVal").textContent = "--";
@@ -69,5 +69,6 @@ startBtn.addEventListener("click", async () => {
     // Stop pulsing and hide spinner
     startBtn.classList.remove("animate-pulse", "opacity-80");
     spinner.classList.add("hidden");
+    output.classList.remove("hidden");
   }
 });
