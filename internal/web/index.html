@@ -7,57 +7,66 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="bg-[#0f1117] text-gray-200 min-h-screen flex flex-col items-center justify-center p-6">
-  <h2 class="text-3xl font-semibold text-gray-100 mb-10 tracking-wide">
-    GoSpeed Network Test
-  </h2>
+<body class="bg-[#0f1117] text-gray-200 min-h-screen p-6 relative">
+  <button id="settingsBtn" class="absolute top-6 right-6">
+    <svg class="w-6 h-6 text-gray-400 hover:text-cyan-400 transition-colors" aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+        d="M20 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6h-2m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4" />
+    </svg>
+  </button>
 
-  <!-- GO Button with Spinner Ring -->
-  <div class="relative w-40 h-40 flex items-center justify-center">
-    <button id="startBtn"
-      class="w-32 h-32 flex items-center justify-center rounded-full border-2 border-cyan-400 text-xl font-semibold text-white hover:scale-105 transition-transform duration-200 shadow-[0_0_10px_rgba(0,255,255,0.3)]">
-      GO
-    </button>
+  <div class="flex flex-col items-center justify-center min-h-screen">
+    <h2 class="text-3xl font-semibold text-gray-100 mb-10 tracking-wide">
+      GoSpeed Network Test
+    </h2>
 
-    <!-- Loading Spinner as outer ring -->
-    <div id="spinner" class="hidden pointer-events-none absolute inset-0">
-      <div class="w-full h-full flex items-center justify-center">
-        <div class="w-40 h-40 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+    <!-- GO Button with Spinner Ring -->
+    <div class="relative w-40 h-40 flex items-center justify-center">
+      <button id="startBtn"
+        class="w-32 h-32 flex items-center justify-center rounded-full border-2 border-cyan-400 text-xl font-semibold text-white hover:scale-105 transition-transform duration-200 shadow-[0_0_10px_rgba(0,255,255,0.3)]">
+        GO
+      </button>
+
+      <!-- Loading Spinner as outer ring -->
+      <div id="spinner" class="hidden pointer-events-none absolute inset-0">
+        <div class="w-full h-full flex items-center justify-center">
+          <div class="w-40 h-40 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Results Card -->
-  <div id="output"
-    class="mt-10 hidden border border-green-500 rounded-xl p-6 w-full max-w-2xl bg-[#131722]">
-    <div class="flex flex-col md:flex-row justify-between items-center w-full">
-      <div class="flex flex-col items-center m-4">
-      <span class="text-green-400 text-sm uppercase tracking-wider">Ping</span>
-      <span class="text-3xl font-bold text-gray-100" id="pingVal">0</span>
-      <span class="text-xs text-gray-400">ms</span>
-      </div>
+    <!-- Results Card -->
+    <div id="output" class="mt-10 hidden border border-green-500 rounded-xl p-6 w-full max-w-2xl bg-[#131722]">
+      <div class="flex flex-col md:flex-row justify-between items-center w-full">
+        <div class="flex flex-col items-center m-4">
+          <span class="text-green-400 text-sm uppercase tracking-wider">Ping</span>
+          <span class="text-3xl font-bold text-gray-100" id="pingVal">0</span>
+          <span class="text-xs text-gray-400">ms</span>
+        </div>
 
-      <div class="flex flex-col items-center m-4">
-      <span class="text-green-400 text-sm uppercase tracking-wider">Download</span>
-      <span class="text-3xl font-bold text-gray-100" id="downVal">0</span>
-      <span class="text-xs text-gray-400">Mbps</span>
-      </div>
+        <div class="flex flex-col items-center m-4">
+          <span class="text-green-400 text-sm uppercase tracking-wider">Download</span>
+          <span class="text-3xl font-bold text-gray-100" id="downVal">0</span>
+          <span class="text-xs text-gray-400">Mbps</span>
+        </div>
 
-      <div class="flex flex-col items-center m-4">
-      <span class="text-green-400 text-sm uppercase tracking-wider">Upload</span>
-      <span class="text-3xl font-bold text-gray-100" id="upVal">0</span>
-      <span class="text-xs text-gray-400">Mbps</span>
-      </div>
+        <div class="flex flex-col items-center m-4">
+          <span class="text-green-400 text-sm uppercase tracking-wider">Upload</span>
+          <span class="text-3xl font-bold text-gray-100" id="upVal">0</span>
+          <span class="text-xs text-gray-400">Mbps</span>
+        </div>
 
-      <div class="flex flex-col items-center m-4">
-      <span class="text-blue-400 text-sm uppercase tracking-wider">Test Time</span>
-      <span class="text-xl font-bold text-gray-100" id="timestamp">--</span>
+        <div class="flex flex-col items-center m-4">
+          <span class="text-blue-400 text-sm uppercase tracking-wider">Test Time</span>
+          <span class="text-xl font-bold text-gray-100" id="timestamp">--</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- History Card -->
-  <div id="history" class="mt-8 w-full max-w-2xl"></div>
+    <!-- History Card -->
+    <div id="history" class="mt-8 w-full max-w-2xl"></div>
+  </div>
 
   <script src="script.js"></script>
 </body>
