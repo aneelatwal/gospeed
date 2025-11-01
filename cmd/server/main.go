@@ -11,7 +11,7 @@ import (
 	"github.com/aneelatwal/gospeed/internal/web"
 )
 
-type SpeedResult struct {
+type ResultJson struct {
 	Server       string  `json:"server"`
 	PingMs       int64   `json:"ping_ms"`
 	DownloadMbps float64 `json:"download_mbps"`
@@ -43,17 +43,19 @@ func main() {
 			return
 		}
 
-		result := SpeedResult{
+		timestamp := time.Now()
+
+		result := ResultJson{
 			Server:       best.Server.ServerURL,
 			PingMs:       best.Latency.Milliseconds(),
 			DownloadMbps: downloadMbps,
 			UploadMbps:   uploadMbps,
-			Timestamp:    time.Now().Format(time.RFC3339),
+			Timestamp:    timestamp.Format(time.RFC3339),
 		}
 
 		// Save to history CSV
 		err = storage.SaveResult(storage.Result{
-			Timestamp:    time.Now(),
+			Timestamp:    timestamp,
 			PingMs:       float64(result.PingMs),
 			DownloadMbps: result.DownloadMbps,
 			UploadMbps:   result.UploadMbps,
