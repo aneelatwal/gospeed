@@ -1,6 +1,11 @@
 const startBtn = document.getElementById("startBtn");
 const output = document.getElementById("output");
 const spinner = document.getElementById("spinner");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const cancelBtn = document.getElementById("cancelBtn");
+const saveBtn = document.getElementById("saveBtn");
+const frequencySelect = document.getElementById("frequencySelect");
 
 async function fetchAndRenderHistory() {
   const container = document.getElementById("history");
@@ -71,4 +76,28 @@ startBtn.addEventListener("click", async () => {
     spinner.classList.add("hidden");
     output.classList.remove("hidden");
   }
+});
+
+settingsBtn.addEventListener("click", () => {
+  settingsModal.classList.remove("hidden");
+  settingsModal.classList.add("flex");
+});
+
+// Close modal when clicking outside
+settingsModal.addEventListener("click", (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.classList.add("hidden");
+    settingsModal.classList.remove("flex");
+  }
+});
+
+cancelBtn.addEventListener("click", () => {
+  settingsModal.classList.add("hidden");
+  settingsModal.classList.remove("flex");
+});
+
+saveBtn.addEventListener("click", () => {
+  settingsModal.classList.add("hidden");
+  settingsModal.classList.remove("flex");
+  console.log(frequencySelect.value);
 });
