@@ -43,7 +43,22 @@ async function fetchAndRenderHistory() {
   }
 }
 
-window.addEventListener("DOMContentLoaded", fetchAndRenderHistory);
+async function loadFrequency() {
+  try {
+    const res = await fetch("/api/frequency");
+    const data = await res.json();
+    if (data.frequency_hours) {
+      frequencySelect.value = data.frequency_hours.toString();
+    }
+  } catch (err) {
+    console.error("Failed to load frequency:", err);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  fetchAndRenderHistory();
+  loadFrequency();
+});
 
 startBtn.addEventListener("click", async () => {
   // Add pulsing animation and show spinner
@@ -78,7 +93,8 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-settingsBtn.addEventListener("click", () => {
+settingsBtn.addEventListener("click", async () => {
+  await loadFrequency(); // Refresh frequency before opening modal
   settingsModal.classList.remove("hidden");
   settingsModal.classList.add("flex");
 });
@@ -96,8 +112,31 @@ cancelBtn.addEventListener("click", () => {
   settingsModal.classList.remove("flex");
 });
 
-saveBtn.addEventListener("click", () => {
-  settingsModal.classList.add("hidden");
-  settingsModal.classList.remove("flex");
-  console.log(frequencySelect.value);
+saveBtn.addEventListener("click", async () => {
+  const frequencyHours = parseInt(frequencySelect.value);
+  
+  try {
+    const res = await fetch("/api/frequency", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ frequency_hours: frequencyHours }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to save frequency");
+    }
+
+    const data = await res.json();
+    if (data.success) {
+      settingsModal.classList.add("hidden");
+      settingsModal.classList.remove("flex");
+    } else {
+      alert("Failed to save frequency");
+    }
+  } catch (err) {
+    console.error("Error saving frequency:", err);
+    alert("Error saving frequency: " + err.message);
+  }
 });
