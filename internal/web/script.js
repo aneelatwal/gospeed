@@ -63,6 +63,8 @@ window.addEventListener("DOMContentLoaded", () => {
 startBtn.addEventListener("click", async () => {
   // Add pulsing animation and show spinner
   startBtn.classList.add("animate-pulse", "opacity-80");
+  startBtn.classList.remove("hover:scale-105");
+  startBtn.disabled = true;
   spinner.classList.remove("hidden");
   output.classList.add("hidden");
 
@@ -88,6 +90,8 @@ startBtn.addEventListener("click", async () => {
   } finally {
     // Stop pulsing and hide spinner
     startBtn.classList.remove("animate-pulse", "opacity-80");
+    startBtn.classList.add("hover:scale-105");
+    startBtn.disabled = false;
     spinner.classList.add("hidden");
     output.classList.remove("hidden");
   }
