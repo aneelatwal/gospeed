@@ -20,7 +20,14 @@ const csvFile = "gospeed_results.csv"
 
 // SaveResult appends a new test result to the CSV
 func SaveResult(r Result) error {
-	file, err := os.OpenFile(csvFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	existing, _ := LoadLastResults(1000)
+	existing = append(existing, r)
+
+	if len(existing) > 5 {
+		existing = existing[len(existing)-5:]
+	}
+
+	file, err := os.Create(csvFile)
 	if err != nil {
 		return err
 	}
@@ -29,14 +36,19 @@ func SaveResult(r Result) error {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	record := []string{
-		r.Timestamp.Format(time.RFC3339),
-		fmt.Sprintf("%.2f", r.PingMs),
-		fmt.Sprintf("%.2f", r.DownloadMbps),
-		fmt.Sprintf("%.2f", r.UploadMbps),
+	for _, res := range existing {
+		record := []string{
+			res.Timestamp.Format(time.RFC3339),
+			fmt.Sprintf("%.2f", res.PingMs),
+			fmt.Sprintf("%.2f", res.DownloadMbps),
+			fmt.Sprintf("%.2f", res.UploadMbps),
+		}
+		if err := writer.Write(record); err != nil {
+			return err
+		}
 	}
 
-	return writer.Write(record)
+	return nil
 }
 
 // LoadLastResults returns the N most recent results (up to 5)
