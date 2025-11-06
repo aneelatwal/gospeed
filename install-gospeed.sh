@@ -176,7 +176,7 @@ pct create "${LXC_ID}" "${TEMPLATE}" \
   --cores "${LXC_CORES}" \
   --memory "${LXC_MEM}" \
   --rootfs "${STORAGE}:${LXC_DISK}G" \
-  --net0 "name=eth0,bridge=${BRIDGE},ip=dhcp,tag=0" \
+  --net0 "name=eth0,bridge=${BRIDGE},ip=dhcp" \
   --unprivileged 1 \
   --features nesting=1
 
