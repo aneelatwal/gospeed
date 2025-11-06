@@ -1,6 +1,7 @@
 # Ignore built gospeed binary
 /gospeed
 gospeed.exe
+/bin
 /node_modules
 .DS_Store
 gospeed_results.csv
