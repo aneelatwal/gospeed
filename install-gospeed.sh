@@ -169,13 +169,22 @@ info "Starting GoSpeed LXC installer"
 TEMPLATE=$(choose_template)
 info "Using LXC template: ${TEMPLATE}"
 
+#
+# Determine rootfs specification depending on storage type
+#
+if [[ "${STORAGE}" == *"lvm"* ]]; then
+  ROOTFS_SPEC="${STORAGE}:${LXC_DISK}"
+else
+  ROOTFS_SPEC="${STORAGE}:size=${LXC_DISK}G"
+fi
+
 # create container
 info "Creating LXC ${LXC_ID} (${LXC_NAME})..."
 pct create "${LXC_ID}" "${TEMPLATE}" \
   --hostname "${LXC_NAME}" \
   --cores "${LXC_CORES}" \
   --memory "${LXC_MEM}" \
-  --rootfs "${STORAGE}:size=${LXC_DISK}G" \
+  --rootfs "${ROOTFS_SPEC}" \
   --net0 "name=eth0,bridge=${BRIDGE},ip=dhcp" \
   --unprivileged 1 \
   --features nesting=1
