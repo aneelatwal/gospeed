@@ -62,7 +62,7 @@ fi
 
 # Find next available LXC ID if requested
 if [ "${LXC_ID}" = "next" ]; then
-  LXC_ID=$(pct nextid)
+  LXC_ID=$(pvesh get /cluster/nextid)
   info "Picked next available LXC ID: ${LXC_ID}"
 fi
 
